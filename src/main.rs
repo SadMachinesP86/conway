@@ -85,6 +85,15 @@ struct World {
 }
 
 impl World {
+    pub fn default() -> World {
+        let mut world = World {
+            population: Vec::new(),
+        };
+
+        world.prepare_sample();
+        world
+    }
+
     pub fn draw(&self) {
         clear_background(WHITE);
 
@@ -99,26 +108,26 @@ impl World {
 
     // Returns the organism at the provided location, either by retrieving it from the existing population, or creating
     //   a new (dead) one.
-    pub fn organism_at(&mut self, x: i16, y: i16) -> &mut Organism {
-        if self.get_organism_at(x, y).is_none() {
-            self.create_organism_at(x, y, Status::DEAD);
+    pub fn organism_at(&mut self, point: Point) -> &mut Organism {
+        if self.get_organism_at(point).is_none() {
+            self.create_organism_at(point, Status::DEAD);
         }
 
         self.population
             .iter_mut()
-            .find(|o| o.location == (x, y))
+            .find(|o| o.location == point)
             .unwrap()
     }
 
     // Looks up the organism at the provided location.
-    pub fn get_organism_at(&mut self, x: i16, y: i16) -> Option<&mut Organism> {
-        self.population.iter_mut().find(|o| o.location == (x, y))
+    pub fn get_organism_at(&mut self, point: Point) -> Option<&mut Organism> {
+        self.population.iter_mut().find(|o| o.location == point)
     }
 
     // Creates a new organism at the provided location.
-    pub fn create_organism_at(&mut self, x: i16, y: i16, status: Status) -> &mut Organism {
+    pub fn create_organism_at(&mut self, point: Point, status: Status) -> &mut Organism {
         self.population.push(Organism {
-            location: (x, y),
+            location: (point),
             status,
         });
         self.population.last_mut().unwrap()
@@ -130,7 +139,7 @@ impl World {
         // Infill dead organisms at neighboring points for all current organisms.
         for previous_organism in previous_population.iter() {
             for point in previous_organism.neighboring_points() {
-                let _ = self.organism_at(point.0, point.1);
+                let _ = self.organism_at(point);
             }
         }
 
@@ -155,8 +164,16 @@ impl World {
     }
 
     pub fn flip_organism_at(&mut self, point: Point) {
-        self.organism_at(point.0, point.1).flip_status();
+        self.organism_at(point).flip_status();
         self.clear_dead();
+    }
+
+    pub fn prepare_sample(&mut self) {
+        self.create_organism_at((3, 2), Status::ALIVE);
+        self.create_organism_at((4, 3), Status::ALIVE);
+        self.create_organism_at((2, 4), Status::ALIVE);
+        self.create_organism_at((3, 4), Status::ALIVE);
+        self.create_organism_at((4, 4), Status::ALIVE);
     }
 }
 
@@ -205,18 +222,9 @@ impl Cursor {
 
 #[macroquad::main("Conway's Game of Life")]
 async fn main() {
-    let mut world = World {
-        population: Vec::new(),
-    };
+    let mut world = World::default();
 
-    // "Pre-game" - lets the user move the cursor around and assign starting organisms. A "kite" arrangement is
-    //   provided as a starting point.
-    world.create_organism_at(3, 2, Status::ALIVE);
-    world.create_organism_at(4, 3, Status::ALIVE);
-    world.create_organism_at(2, 4, Status::ALIVE);
-    world.create_organism_at(3, 4, Status::ALIVE);
-    world.create_organism_at(4, 4, Status::ALIVE);
-
+    // "Pre-game" - lets the user move the cursor around and assign starting organisms.
     let mut cursor = Cursor { location: (8, 8) };
 
     loop {
@@ -246,6 +254,10 @@ async fn main() {
 
     loop {
         world.draw();
+
+        if is_key_pressed(KeyCode::Escape) {
+            break;
+        }
 
         if get_time() - last_update > speed {
             last_update = get_time();
