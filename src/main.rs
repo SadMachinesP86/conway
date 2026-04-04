@@ -1,5 +1,7 @@
+mod screen;
 mod structs;
 
+use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;
 use crate::structs::world::World;
@@ -7,15 +9,7 @@ use macroquad::prelude::*;
 
 #[macroquad::main("Conway's Game of Life")]
 async fn main() {
-    set_fullscreen(true);
-
-    loop {
-        if screen_width() != 400. && screen_height() != 300. {
-            break;
-        }
-        next_frame().await;
-    }
-
+    fullscreen().await;
     let mut world = World::default();
 
     // "Pre-game" - lets the user move the cursor around and assign starting organisms.
