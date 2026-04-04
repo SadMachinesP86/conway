@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 const SIZE: i16 = 16;
-const FONT_SIZE: i16 = 12;
+const FONT_SIZE: i16 = 14;
 
 type Point = (i16, i16);
 
@@ -24,7 +24,7 @@ impl Organism {
             (self.location.1 * SIZE) as f32,
             SIZE as f32,
             SIZE as f32,
-            BLACK,
+            SKYBLUE,
         );
     }
 
@@ -96,7 +96,7 @@ impl World {
     }
 
     pub fn draw(&self) {
-        clear_background(WHITE);
+        clear_background(BLACK);
 
         for organism in self.get_population() {
             organism.draw();
@@ -232,7 +232,7 @@ impl Instructions {
                 "Instructions: Set the starting population, then run the simulation.".to_owned(),
                 "Use arrow keys to move the cursor. Press [Space] to flip the cell at the cursor."
                     .to_owned(),
-                "Press [Enter] to run the game.".to_owned(),
+                "Press [Enter] to run the game. Press [Escape] to quit.".to_owned(),
             ],
             font_size: FONT_SIZE as f32,
         }
@@ -249,7 +249,7 @@ impl Instructions {
                 screen_width() / 2. - text_size.width / 2.,
                 screen_height() / 2. + text_size.height / 2. + offset,
                 self.font_size,
-                DARKGRAY,
+                LIGHTGRAY,
             );
 
             offset += self.font_size;
@@ -259,12 +259,14 @@ impl Instructions {
 
 #[macroquad::main("Conway's Game of Life")]
 async fn main() {
+    set_fullscreen(true);
     let mut world = World::default();
 
     // "Pre-game" - lets the user move the cursor around and assign starting organisms.
     let mut cursor = Cursor { location: (8, 8) };
     let instructions = Instructions::default();
     let mut show_instructions = true;
+    let mut resume = true;
 
     loop {
         world.draw();
@@ -275,6 +277,9 @@ async fn main() {
         }
 
         if is_key_pressed(KeyCode::Enter) {
+            break;
+        } else if is_key_pressed(KeyCode::Escape) {
+            resume = false;
             break;
         } else if is_key_pressed(KeyCode::Space) {
             world.flip_organism_at(cursor.location);
@@ -296,22 +301,24 @@ async fn main() {
         next_frame().await;
     }
 
-    // Live game
-    let speed = 0.3;
-    let mut last_update = get_time();
+    if resume {
+        // Live game
+        let speed = 0.3;
+        let mut last_update = get_time();
 
-    loop {
-        world.draw();
+        loop {
+            world.draw();
 
-        if is_key_pressed(KeyCode::Escape) {
-            break;
+            if is_key_pressed(KeyCode::Escape) {
+                break;
+            }
+
+            if get_time() - last_update > speed {
+                last_update = get_time();
+                world.advance_generation();
+            }
+
+            next_frame().await;
         }
-
-        if get_time() - last_update > speed {
-            last_update = get_time();
-            world.advance_generation();
-        }
-
-        next_frame().await;
     }
 }
