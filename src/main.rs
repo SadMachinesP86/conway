@@ -80,10 +80,11 @@ impl World {
         self.population.last().unwrap()
     }
 
-    pub fn infill_neighbors(&mut self) {
-        let points_of_existing_organisms = self.population.clone().into_iter().map(|o| o.location);
+    pub fn advance_generation(&mut self) {
+        let previous_population = self.population.clone();
 
-        for point in points_of_existing_organisms {
+        // Infill dead organisms at neighboring points for all current organisms.
+        for point in previous_population.iter().map(|o| o.location) {
             let _ = self.organism_at(point.0 - 1, point.1 - 1);
             let _ = self.organism_at(point.0 - 1, point.1);
             let _ = self.organism_at(point.0 - 1, point.1 + 1);
@@ -94,14 +95,9 @@ impl World {
             let _ = self.organism_at(point.0 + 1, point.1 + 1);
         }
 
-        ()
-    }
-
-    pub fn mark_next_statuses(&mut self) {
-        let pop_ref = self.population.clone();
-
+        // Count each organism's live neighbors, and update their status accordingly.
         for organism in self.population.iter_mut() {
-            let live_neighbors = pop_ref
+            let live_neighbors = previous_population
                 .iter()
                 .filter(|o| {
                     // Must be alive
@@ -117,9 +113,8 @@ impl World {
 
             organism.set_status_for_neighbor_count(live_neighbors);
         }
-    }
 
-    pub fn clear_dead(&mut self) {
+        // Clear dead organisms.
         self.population.retain_mut(|o| match o.status {
             Status::ALIVE => true,
             Status::DEAD => false,
@@ -159,9 +154,7 @@ async fn main() {
         if get_time() - last_update > speed {
             last_update = get_time();
 
-            world.infill_neighbors();
-            world.mark_next_statuses();
-            world.clear_dead();
+            world.advance_generation();
 
             println!("Population: {}", world.population.iter().count())
         }
