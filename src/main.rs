@@ -68,6 +68,20 @@ struct World {
 }
 
 impl World {
+    pub fn draw(&self) {
+        clear_background(WHITE);
+
+        for organism in self.get_population() {
+            draw_rectangle(
+                (organism.location.0 * SIZE) as f32,
+                (organism.location.1 * SIZE) as f32,
+                SIZE as f32,
+                SIZE as f32,
+                BLACK,
+            );
+        }
+    }
+
     pub fn get_population(&self) -> &Vec<Organism> {
         &self.population
     }
@@ -133,28 +147,30 @@ async fn main() {
         population: Vec::new(),
     };
 
-    let speed = 0.3;
-    let mut last_update = get_time();
-
+    // "Pre-game" - lets the user move the cursor around and assign starting organisms. A "kite" arrangement is
+    //   provided as a starting point.
     world.create_organism_at(3, 2, Status::ALIVE);
     world.create_organism_at(4, 3, Status::ALIVE);
     world.create_organism_at(2, 4, Status::ALIVE);
     world.create_organism_at(3, 4, Status::ALIVE);
     world.create_organism_at(4, 4, Status::ALIVE);
 
-    // "Pre-game" - lets the user move the cursor around and assign starting organisms.
     loop {
-        clear_background(WHITE);
+        world.draw();
 
-        for organism in world.get_population() {
-            draw_rectangle(
-                (organism.location.0 * SIZE) as f32,
-                (organism.location.1 * SIZE) as f32,
-                SIZE as f32,
-                SIZE as f32,
-                BLACK,
-            );
+        if is_key_down(KeyCode::Enter) {
+            break;
         }
+
+        next_frame().await;
+    }
+
+    // Live game
+    let speed = 0.3;
+    let mut last_update = get_time();
+
+    loop {
+        world.draw();
 
         if get_time() - last_update > speed {
             last_update = get_time();
