@@ -107,4 +107,8 @@ impl World {
         self.create_organism_at((3, 4), Status::ALIVE);
         self.create_organism_at((4, 4), Status::ALIVE);
     }
+
+    pub fn clear_population(&mut self) {
+        self.population = Vec::new();
+    }
 }

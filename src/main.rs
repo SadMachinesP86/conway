@@ -19,6 +19,13 @@ async fn pregame_loop(world: &mut World) -> bool {
         cursor.draw();
         instructions.draw();
 
+        let movement_scale = if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift)
+        {
+            5
+        } else {
+            1
+        };
+
         if is_key_pressed(KeyCode::Enter) {
             break;
         } else if is_key_pressed(KeyCode::Escape) {
@@ -27,15 +34,17 @@ async fn pregame_loop(world: &mut World) -> bool {
         } else if is_key_pressed(KeyCode::Space) {
             world.flip_organism_at(cursor.location);
         } else if is_key_pressed(KeyCode::Up) {
-            cursor.up();
+            cursor.up(movement_scale);
         } else if is_key_pressed(KeyCode::Down) {
-            cursor.down();
+            cursor.down(movement_scale);
         } else if is_key_pressed(KeyCode::Left) {
-            cursor.left();
+            cursor.left(movement_scale);
         } else if is_key_pressed(KeyCode::Right) {
-            cursor.right();
+            cursor.right(movement_scale);
         } else if is_key_pressed(KeyCode::H) {
             instructions.toggle_visibility();
+        } else if is_key_pressed(KeyCode::C) {
+            world.clear_population();
         }
 
         next_frame().await;

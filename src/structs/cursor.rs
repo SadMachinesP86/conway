@@ -32,19 +32,19 @@ impl Cursor {
         );
     }
 
-    pub fn left(&mut self) {
-        self.location.0 -= 1
+    pub fn left(&mut self, scale: i16) {
+        self.location.0 -= scale
     }
 
-    pub fn right(&mut self) {
-        self.location.0 += 1
+    pub fn right(&mut self, scale: i16) {
+        self.location.0 += scale
     }
 
-    pub fn up(&mut self) {
-        self.location.1 -= 1
+    pub fn up(&mut self, scale: i16) {
+        self.location.1 -= scale
     }
 
-    pub fn down(&mut self) {
-        self.location.1 += 1
+    pub fn down(&mut self, scale: i16) {
+        self.location.1 += scale
     }
 }
