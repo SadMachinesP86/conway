@@ -1,9 +1,9 @@
+pub mod consts;
+pub mod cursor;
+
+use crate::consts::*;
+use crate::cursor::Cursor;
 use macroquad::prelude::*;
-
-const SIZE: i16 = 16;
-const FONT_SIZE: i16 = 14;
-
-type Point = (i16, i16);
 
 #[derive(Clone, PartialEq)]
 enum Status {
@@ -178,48 +178,6 @@ impl World {
     }
 }
 
-struct Cursor {
-    location: Point,
-}
-
-impl Cursor {
-    fn draw(&self) {
-        let mut x_offset = SIZE / 4;
-        let mut y_offset = SIZE / 4;
-
-        if self.location.0 < 0 {
-            x_offset = x_offset * -1
-        }
-
-        if self.location.1 < 0 {
-            y_offset = y_offset * -1
-        }
-
-        draw_rectangle(
-            ((self.location.0 * SIZE) + x_offset) as f32,
-            ((self.location.1 * SIZE) + y_offset) as f32,
-            (SIZE / 2) as f32,
-            (SIZE / 2) as f32,
-            GOLD,
-        );
-    }
-
-    pub fn left(&mut self) {
-        self.location.0 -= 1
-    }
-
-    pub fn right(&mut self) {
-        self.location.0 += 1
-    }
-
-    pub fn up(&mut self) {
-        self.location.1 -= 1
-    }
-
-    pub fn down(&mut self) {
-        self.location.1 += 1
-    }
-}
 struct Instructions {
     instructions: Vec<String>,
     font_size: f32,
