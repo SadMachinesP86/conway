@@ -2,6 +2,7 @@ mod consts;
 mod screen;
 mod structs;
 
+use crate::consts::SPEED;
 use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;
@@ -48,7 +49,6 @@ async fn main() {
     if resume {
         // Live game
         instructions.hide();
-        let speed = 0.3;
         let mut last_update = get_time();
 
         loop {
@@ -58,7 +58,7 @@ async fn main() {
                 break;
             }
 
-            if get_time() - last_update > speed {
+            if get_time() - last_update > SPEED {
                 last_update = get_time();
                 world.advance_generation();
             }
