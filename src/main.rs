@@ -14,12 +14,18 @@ enum Status {
 struct Organism {
     location: Point,
     status: Status,
-    next_status: Status,
 }
 
 impl Organism {
-    pub fn assign_next_status_for_neighbor_count(&mut self, neighbor_count: usize) {
-        self.next_status = match self.status {
+    /// Implements the core game logic: determines the status of the organism for the next generation, based on its
+    ///   current status and number of neighbors.
+    /// Rules from Wikipedia:
+    /// * Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+    /// * Any live cell with two or three live neighbours lives on to the next generation.
+    /// * Any live cell with more than three live neighbours dies, as if by overpopulation.
+    /// * Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+    pub fn set_status_for_neighbor_count(&mut self, neighbor_count: usize) {
+        self.status = match self.status {
             Status::ALIVE => {
                 if neighbor_count < 2 || neighbor_count > 3 {
                     Status::DEAD
@@ -35,10 +41,6 @@ impl Organism {
                 }
             }
         };
-    }
-
-    pub fn advance_to_next_generation(&mut self) {
-        self.status = self.next_status
     }
 }
 
@@ -74,7 +76,6 @@ impl World {
         self.population.push(Organism {
             location: (x, y),
             status,
-            next_status: Status::DEAD,
         });
         self.population.last().unwrap()
     }
@@ -114,12 +115,7 @@ impl World {
                 })
                 .count();
 
-            organism.assign_next_status_for_neighbor_count(live_neighbors);
-        }
-    }
-    pub fn advance_to_next_generation(&mut self) {
-        for organism in self.population.iter_mut() {
-            organism.advance_to_next_generation();
+            organism.set_status_for_neighbor_count(live_neighbors);
         }
     }
 
@@ -165,8 +161,9 @@ async fn main() {
 
             world.infill_neighbors();
             world.mark_next_statuses();
-            world.advance_to_next_generation();
             world.clear_dead();
+
+            println!("Population: {}", world.population.iter().count())
         }
 
         next_frame().await;
