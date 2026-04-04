@@ -42,6 +42,19 @@ impl Organism {
             }
         };
     }
+
+    pub fn neighboring_points(&self) -> Vec<Point> {
+        vec![
+            (self.location.0 - 1, self.location.1 - 1),
+            (self.location.0 - 1, self.location.1),
+            (self.location.0 - 1, self.location.1 + 1),
+            (self.location.0, self.location.1 - 1),
+            (self.location.0, self.location.1 + 1),
+            (self.location.0 + 1, self.location.1 - 1),
+            (self.location.0 + 1, self.location.1),
+            (self.location.0 + 1, self.location.1 + 1),
+        ]
+    }
 }
 
 struct World {
@@ -84,15 +97,10 @@ impl World {
         let previous_population = self.population.clone();
 
         // Infill dead organisms at neighboring points for all current organisms.
-        for point in previous_population.iter().map(|o| o.location) {
-            let _ = self.organism_at(point.0 - 1, point.1 - 1);
-            let _ = self.organism_at(point.0 - 1, point.1);
-            let _ = self.organism_at(point.0 - 1, point.1 + 1);
-            let _ = self.organism_at(point.0, point.1 - 1);
-            let _ = self.organism_at(point.0, point.1 + 1);
-            let _ = self.organism_at(point.0 + 1, point.1 - 1);
-            let _ = self.organism_at(point.0 + 1, point.1);
-            let _ = self.organism_at(point.0 + 1, point.1 + 1);
+        for previous_organism in previous_population.iter() {
+            for point in previous_organism.neighboring_points() {
+                let _ = self.organism_at(point.0, point.1);
+            }
         }
 
         // Count each organism's live neighbors, and update their status accordingly.
