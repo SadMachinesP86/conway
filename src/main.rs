@@ -55,6 +55,12 @@ impl Organism {
             (self.location.0 + 1, self.location.1 + 1),
         ]
     }
+
+    pub fn is_neighbor_of(&self, other: &Organism) -> bool {
+        ((self.location.0 - other.location.0).abs() <= 1
+            && (self.location.1 - other.location.1).abs() <= 1)
+            && !(self.location.0 == other.location.0 && self.location.1 == other.location.1)
+    }
 }
 
 struct World {
@@ -107,16 +113,7 @@ impl World {
         for organism in self.population.iter_mut() {
             let live_neighbors = previous_population
                 .iter()
-                .filter(|o| {
-                    // Must be alive
-                    o.status == Status::ALIVE &&
-                    // Must be adjacent
-                    ((o.location.0 - organism.location.0).abs() <= 1
-                        && (o.location.1 - organism.location.1).abs() <= 1)
-                    // Must not be the same
-                        && !(o.location.0 == organism.location.0
-                            && o.location.1 == organism.location.1)
-                })
+                .filter(|o| o.status == Status::ALIVE && o.is_neighbor_of(organism))
                 .count();
 
             organism.set_status_for_neighbor_count(live_neighbors);
