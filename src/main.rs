@@ -1,12 +1,8 @@
-pub mod consts;
-pub mod cursor;
-pub mod instructions;
-pub mod organism;
-pub mod world;
+mod structs;
 
-use crate::cursor::Cursor;
-use crate::instructions::Instructions;
-use crate::world::World;
+use crate::structs::cursor::Cursor;
+use crate::structs::instructions::Instructions;
+use crate::structs::world::World;
 use macroquad::prelude::*;
 
 #[macroquad::main("Conway's Game of Life")]
