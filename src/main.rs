@@ -26,6 +26,8 @@ async fn pregame_loop(world: &mut World) -> bool {
             1
         };
 
+        let mut did_move = false;
+
         if is_key_pressed(KeyCode::Enter) {
             break;
         } else if is_key_pressed(KeyCode::Escape) {
@@ -35,16 +37,24 @@ async fn pregame_loop(world: &mut World) -> bool {
             world.flip_organism_at(cursor.location);
         } else if is_key_pressed(KeyCode::Up) {
             cursor.up(movement_scale);
+            did_move = true;
         } else if is_key_pressed(KeyCode::Down) {
             cursor.down(movement_scale);
+            did_move = true;
         } else if is_key_pressed(KeyCode::Left) {
             cursor.left(movement_scale);
+            did_move = true;
         } else if is_key_pressed(KeyCode::Right) {
             cursor.right(movement_scale);
+            did_move = true;
         } else if is_key_pressed(KeyCode::H) {
             instructions.toggle_visibility();
         } else if is_key_pressed(KeyCode::C) {
             world.clear_population();
+        }
+
+        if did_move && is_key_down(KeyCode::Space) {
+            world.flip_organism_at(cursor.location);
         }
 
         next_frame().await;
