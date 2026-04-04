@@ -4,13 +4,13 @@ const SIZE: i16 = 16;
 
 type Point = (i16, i16);
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, PartialEq)]
 enum Status {
     ALIVE,
     DEAD,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct Organism {
     location: Point,
     status: Status,
