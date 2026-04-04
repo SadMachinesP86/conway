@@ -17,6 +17,16 @@ struct Organism {
 }
 
 impl Organism {
+    pub fn draw(&self) {
+        draw_rectangle(
+            (self.location.0 * SIZE) as f32,
+            (self.location.1 * SIZE) as f32,
+            SIZE as f32,
+            SIZE as f32,
+            BLACK,
+        );
+    }
+
     /// Implements the core game logic: determines the status of the organism for the next generation, based on its
     ///   current status and number of neighbors.
     /// Rules from Wikipedia:
@@ -61,6 +71,13 @@ impl Organism {
             && (self.location.1 - other.location.1).abs() <= 1)
             && !(self.location.0 == other.location.0 && self.location.1 == other.location.1)
     }
+
+    pub fn flip_status(&mut self) {
+        self.status = match self.status {
+            Status::ALIVE => Status::DEAD,
+            Status::DEAD => Status::ALIVE,
+        };
+    }
 }
 
 struct World {
@@ -72,13 +89,7 @@ impl World {
         clear_background(WHITE);
 
         for organism in self.get_population() {
-            draw_rectangle(
-                (organism.location.0 * SIZE) as f32,
-                (organism.location.1 * SIZE) as f32,
-                SIZE as f32,
-                SIZE as f32,
-                BLACK,
-            );
+            organism.draw();
         }
     }
 
@@ -88,29 +99,29 @@ impl World {
 
     // Returns the organism at the provided location, either by retrieving it from the existing population, or creating
     //   a new (dead) one.
-    pub fn organism_at(&mut self, x: i16, y: i16) -> &Organism {
+    pub fn organism_at(&mut self, x: i16, y: i16) -> &mut Organism {
         if self.get_organism_at(x, y).is_none() {
             self.create_organism_at(x, y, Status::DEAD);
         }
 
         self.population
-            .iter()
+            .iter_mut()
             .find(|o| o.location == (x, y))
             .unwrap()
     }
 
     // Looks up the organism at the provided location.
-    pub fn get_organism_at(&mut self, x: i16, y: i16) -> Option<&Organism> {
-        self.population.iter().find(|o| o.location == (x, y))
+    pub fn get_organism_at(&mut self, x: i16, y: i16) -> Option<&mut Organism> {
+        self.population.iter_mut().find(|o| o.location == (x, y))
     }
 
     // Creates a new organism at the provided location.
-    pub fn create_organism_at(&mut self, x: i16, y: i16, status: Status) -> &Organism {
+    pub fn create_organism_at(&mut self, x: i16, y: i16, status: Status) -> &mut Organism {
         self.population.push(Organism {
             location: (x, y),
             status,
         });
-        self.population.last().unwrap()
+        self.population.last_mut().unwrap()
     }
 
     pub fn advance_generation(&mut self) {
@@ -133,11 +144,62 @@ impl World {
             organism.set_status_for_neighbor_count(live_neighbors);
         }
 
-        // Clear dead organisms.
+        self.clear_dead();
+    }
+
+    pub fn clear_dead(&mut self) {
         self.population.retain_mut(|o| match o.status {
             Status::ALIVE => true,
             Status::DEAD => false,
         });
+    }
+
+    pub fn flip_organism_at(&mut self, point: Point) {
+        self.organism_at(point.0, point.1).flip_status();
+        self.clear_dead();
+    }
+}
+
+struct Cursor {
+    location: Point,
+}
+
+impl Cursor {
+    fn draw(&self) {
+        let mut x_offset = SIZE / 4;
+        let mut y_offset = SIZE / 4;
+
+        if self.location.0 < 0 {
+            x_offset = x_offset * -1
+        }
+
+        if self.location.1 < 0 {
+            y_offset = y_offset * -1
+        }
+
+        draw_rectangle(
+            ((self.location.0 * SIZE) + x_offset) as f32,
+            ((self.location.1 * SIZE) + y_offset) as f32,
+            (SIZE / 2) as f32,
+            (SIZE / 2) as f32,
+            GOLD,
+        );
+    }
+
+    pub fn left(&mut self) {
+        self.location.0 -= 1
+    }
+
+    pub fn right(&mut self) {
+        self.location.0 += 1
+    }
+
+    pub fn up(&mut self) {
+        self.location.1 -= 1
+    }
+
+    pub fn down(&mut self) {
+        self.location.1 += 1
     }
 }
 
@@ -155,11 +217,24 @@ async fn main() {
     world.create_organism_at(3, 4, Status::ALIVE);
     world.create_organism_at(4, 4, Status::ALIVE);
 
+    let mut cursor = Cursor { location: (8, 8) };
+
     loop {
         world.draw();
+        cursor.draw();
 
-        if is_key_down(KeyCode::Enter) {
+        if is_key_pressed(KeyCode::Enter) {
             break;
+        } else if is_key_pressed(KeyCode::Space) {
+            world.flip_organism_at(cursor.location);
+        } else if is_key_pressed(KeyCode::Up) {
+            cursor.up()
+        } else if is_key_pressed(KeyCode::Down) {
+            cursor.down()
+        } else if is_key_pressed(KeyCode::Left) {
+            cursor.left()
+        } else if is_key_pressed(KeyCode::Right) {
+            cursor.right()
         }
 
         next_frame().await;
