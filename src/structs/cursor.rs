@@ -6,6 +6,10 @@ pub struct Cursor {
 }
 
 impl Cursor {
+    pub fn default() -> Cursor {
+        Cursor { location: origin() }
+    }
+
     pub fn draw(&self) {
         let mut x_offset = SIZE / 4;
         let mut y_offset = SIZE / 4;

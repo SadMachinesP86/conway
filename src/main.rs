@@ -8,10 +8,18 @@ use macroquad::prelude::*;
 #[macroquad::main("Conway's Game of Life")]
 async fn main() {
     set_fullscreen(true);
+
+    loop {
+        if screen_width() != 400. && screen_height() != 300. {
+            break;
+        }
+        next_frame().await;
+    }
+
     let mut world = World::default();
 
     // "Pre-game" - lets the user move the cursor around and assign starting organisms.
-    let mut cursor = Cursor { location: (8, 8) };
+    let mut cursor = Cursor::default();
     let mut instructions = Instructions::default();
     let mut resume = true;
 
