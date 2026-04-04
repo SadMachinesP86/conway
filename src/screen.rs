@@ -1,4 +1,4 @@
-use crate::structs::consts::*;
+use crate::consts::*;
 use macroquad::window::{next_frame, screen_height, screen_width, set_fullscreen};
 
 pub fn origin() -> Point {

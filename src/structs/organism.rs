@@ -1,4 +1,4 @@
-use super::consts::*;
+use crate::consts::*;
 use crate::{SKYBLUE, draw_rectangle};
 
 #[derive(Clone, PartialEq)]

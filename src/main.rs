@@ -1,3 +1,4 @@
+mod consts;
 mod screen;
 mod structs;
 

@@ -1,4 +1,4 @@
-use super::consts::*;
+use crate::consts::*;
 use crate::{LIGHTGRAY, draw_text, measure_text, screen_height, screen_width};
 
 pub struct Instructions {

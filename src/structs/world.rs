@@ -1,5 +1,5 @@
-use super::consts::*;
 use super::organism::{Organism, Status};
+use crate::consts::*;
 use crate::{BLACK, clear_background};
 
 pub struct World {

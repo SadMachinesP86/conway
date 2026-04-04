@@ -1,4 +1,4 @@
-use super::consts::*;
+use crate::consts::*;
 use crate::screen::origin;
 use crate::{GOLD, draw_rectangle};
 
