@@ -249,10 +249,7 @@ async fn main() {
 
         if get_time() - last_update > speed {
             last_update = get_time();
-
             world.advance_generation();
-
-            println!("Population: {}", world.population.iter().count())
         }
 
         next_frame().await;
