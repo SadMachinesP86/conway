@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 
 const SIZE: i16 = 16;
+const FONT_SIZE: i16 = 12;
 
 type Point = (i16, i16);
 
@@ -219,6 +220,42 @@ impl Cursor {
         self.location.1 += 1
     }
 }
+struct Instructions {
+    instructions: Vec<String>,
+    font_size: f32,
+}
+
+impl Instructions {
+    fn default() -> Instructions {
+        Instructions {
+            instructions: vec![
+                "Instructions: Set the starting population, then run the simulation.".to_owned(),
+                "Use arrow keys to move the cursor. Press [Space] to flip the cell at the cursor."
+                    .to_owned(),
+                "Press [Enter] to run the game.".to_owned(),
+            ],
+            font_size: FONT_SIZE as f32,
+        }
+    }
+
+    fn draw(&self) {
+        let mut offset = 0.;
+
+        for text in self.instructions.iter() {
+            let text_size = measure_text(text, None, self.font_size as _, 1.0);
+
+            draw_text(
+                text,
+                screen_width() / 2. - text_size.width / 2.,
+                screen_height() / 2. + text_size.height / 2. + offset,
+                self.font_size,
+                DARKGRAY,
+            );
+
+            offset += self.font_size;
+        }
+    }
+}
 
 #[macroquad::main("Conway's Game of Life")]
 async fn main() {
@@ -226,23 +263,34 @@ async fn main() {
 
     // "Pre-game" - lets the user move the cursor around and assign starting organisms.
     let mut cursor = Cursor { location: (8, 8) };
+    let instructions = Instructions::default();
+    let mut show_instructions = true;
 
     loop {
         world.draw();
         cursor.draw();
 
+        if show_instructions {
+            instructions.draw();
+        }
+
         if is_key_pressed(KeyCode::Enter) {
             break;
         } else if is_key_pressed(KeyCode::Space) {
             world.flip_organism_at(cursor.location);
+            show_instructions = false;
         } else if is_key_pressed(KeyCode::Up) {
-            cursor.up()
+            cursor.up();
+            show_instructions = false;
         } else if is_key_pressed(KeyCode::Down) {
-            cursor.down()
+            cursor.down();
+            show_instructions = false;
         } else if is_key_pressed(KeyCode::Left) {
-            cursor.left()
+            cursor.left();
+            show_instructions = false;
         } else if is_key_pressed(KeyCode::Right) {
-            cursor.right()
+            cursor.right();
+            show_instructions = false;
         }
 
         next_frame().await;
