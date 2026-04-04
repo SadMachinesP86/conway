@@ -4,7 +4,7 @@ const SIZE: i16 = 16;
 
 type Point = (i16, i16);
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 enum Status {
     ALIVE,
     DEAD,
@@ -14,6 +14,32 @@ enum Status {
 struct Organism {
     location: Point,
     status: Status,
+    next_status: Status,
+}
+
+impl Organism {
+    pub fn assign_next_status_for_neighbor_count(&mut self, neighbor_count: usize) {
+        self.next_status = match self.status {
+            Status::ALIVE => {
+                if neighbor_count < 2 || neighbor_count > 3 {
+                    Status::DEAD
+                } else {
+                    Status::ALIVE
+                }
+            }
+            Status::DEAD => {
+                if neighbor_count == 3 {
+                    Status::ALIVE
+                } else {
+                    Status::DEAD
+                }
+            }
+        };
+    }
+
+    pub fn advance_to_next_generation(&mut self) {
+        self.status = self.next_status
+    }
 }
 
 struct World {
@@ -48,8 +74,53 @@ impl World {
         self.population.push(Organism {
             location: (x, y),
             status,
+            next_status: Status::DEAD,
         });
         self.population.last().unwrap()
+    }
+
+    pub fn infill_neighbors(&mut self) {
+        let points_of_existing_organisms = self.population.clone().into_iter().map(|o| o.location);
+
+        for point in points_of_existing_organisms {
+            let _ = self.organism_at(point.0 - 1, point.1 - 1);
+            let _ = self.organism_at(point.0 - 1, point.1);
+            let _ = self.organism_at(point.0 - 1, point.1 + 1);
+            let _ = self.organism_at(point.0, point.1 - 1);
+            let _ = self.organism_at(point.0, point.1 + 1);
+            let _ = self.organism_at(point.0 + 1, point.1 - 1);
+            let _ = self.organism_at(point.0 + 1, point.1);
+            let _ = self.organism_at(point.0 + 1, point.1 + 1);
+        }
+
+        ()
+    }
+
+    pub fn mark_next_statuses(&mut self) {
+        let pop_ref = self.population.clone();
+
+        for organism in self.population.iter_mut() {
+            let live_neighbors = pop_ref
+                .iter()
+                .filter(|o| {
+                    // Must be alive
+                    o.status == Status::ALIVE &&
+                    // Must be adjacent
+                    ((o.location.0 - organism.location.0).abs() <= 1
+                        && (o.location.1 - organism.location.1).abs() <= 1)
+                    // Must not be the same
+                        && !(o.location.0 == organism.location.0
+                            && o.location.1 == organism.location.1)
+                })
+                .count();
+
+            organism.assign_next_status_for_neighbor_count(live_neighbors);
+        }
+    }
+    pub fn advance_to_next_generation(&mut self) {
+        for organism in self.population.iter_mut() {
+            organism.advance_to_next_generation();
+        }
     }
 
     pub fn clear_dead(&mut self) {
@@ -58,16 +129,6 @@ impl World {
             Status::DEAD => false,
         });
     }
-
-    pub fn infill_neighbors(&mut self) {
-        let points_of_existing_organisms = self.population.clone().into_iter().map(|o| o.location);
-
-        for point in points_of_existing_organisms {
-            let _ = self.organism_at(point.0 - 1, point.1 - 1);
-        }
-
-        ()
-    }
 }
 
 #[macroquad::main("Conway's Game of Life")]
@@ -75,6 +136,9 @@ async fn main() {
     let mut world = World {
         population: Vec::new(),
     };
+
+    let speed = 0.3;
+    let mut last_update = get_time();
 
     world.create_organism_at(3, 2, Status::ALIVE);
     world.create_organism_at(4, 3, Status::ALIVE);
@@ -94,6 +158,15 @@ async fn main() {
                 SIZE as f32,
                 BLACK,
             );
+        }
+
+        if get_time() - last_update > speed {
+            last_update = get_time();
+
+            world.infill_neighbors();
+            world.mark_next_statuses();
+            world.advance_to_next_generation();
+            world.clear_dead();
         }
 
         next_frame().await;
