@@ -47,8 +47,4 @@ impl Instructions {
     pub fn toggle_visibility(&mut self) {
         self.visibility = !self.visibility
     }
-
-    pub fn hide(&mut self) {
-        self.visibility = false
-    }
 }

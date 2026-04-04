@@ -16,6 +16,12 @@ impl World {
         world
     }
 
+    pub fn with_initial_population(initial_population: Vec<Organism>) -> World {
+        World {
+            population: initial_population,
+        }
+    }
+
     pub fn draw(&self) {
         clear_background(BLACK);
 
@@ -26,6 +32,10 @@ impl World {
 
     pub fn get_population(&self) -> &Vec<Organism> {
         &self.population
+    }
+
+    pub fn clone_population(&self) -> Vec<Organism> {
+        self.population.clone()
     }
 
     // Returns the organism at the provided location, either by retrieving it from the existing population, or creating

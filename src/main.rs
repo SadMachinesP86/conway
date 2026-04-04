@@ -9,12 +9,7 @@ use crate::structs::instructions::Instructions;
 use crate::structs::world::World;
 use macroquad::prelude::*;
 
-#[macroquad::main("Conway's Game of Life")]
-async fn main() {
-    fullscreen().await;
-    let mut world = World::default();
-
-    // "Pre-game" - lets the user move the cursor around and assign starting organisms.
+async fn pregame_loop(world: &mut World) -> bool {
     let mut cursor = Cursor::default();
     let mut instructions = Instructions::default();
     let mut resume = true;
@@ -46,24 +41,45 @@ async fn main() {
         next_frame().await;
     }
 
-    if resume {
-        // Live game
-        instructions.hide();
-        let mut last_update = get_time();
+    resume
+}
 
-        loop {
-            world.draw();
+async fn game_loop(world: &mut World) {
+    let mut last_update = get_time();
 
-            if is_key_pressed(KeyCode::Escape) {
-                break;
-            }
+    loop {
+        world.draw();
 
-            if get_time() - last_update > SPEED {
-                last_update = get_time();
-                world.advance_generation();
-            }
-
-            next_frame().await;
+        if is_key_pressed(KeyCode::Escape) {
+            break;
         }
+
+        if get_time() - last_update > SPEED {
+            last_update = get_time();
+            world.advance_generation();
+        }
+
+        next_frame().await;
+    }
+
+    next_frame().await;
+}
+
+#[macroquad::main("Conway's Game of Life")]
+async fn main() {
+    fullscreen().await;
+    let mut world = World::default();
+
+    loop {
+        let resume = pregame_loop(&mut world).await;
+        let initial_population = world.clone_population();
+
+        if resume {
+            game_loop(&mut world).await;
+        } else {
+            break;
+        }
+
+        world = World::with_initial_population(initial_population);
     }
 }
