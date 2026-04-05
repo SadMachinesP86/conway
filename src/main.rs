@@ -65,23 +65,26 @@ async fn pregame_loop(world: &mut World) -> bool {
 
 async fn game_loop(world: &mut World) {
     let mut last_update = get_time();
+    let mut paused = false;
 
     loop {
         world.draw();
 
         if is_key_pressed(KeyCode::Escape) {
+            // Wait one more frame to clear keycodes before exiting.
+            next_frame().await;
             break;
+        } else if is_key_pressed(KeyCode::Space) {
+            paused = !paused;
         }
 
-        if get_time() - last_update > SPEED {
+        if !paused && get_time() - last_update > SPEED {
             last_update = get_time();
             world.advance_generation();
         }
 
         next_frame().await;
     }
-
-    next_frame().await;
 }
 
 #[macroquad::main("Conway's Game of Life")]
