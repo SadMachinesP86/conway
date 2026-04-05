@@ -89,10 +89,7 @@ impl World {
     }
 
     pub fn clear_dead(&mut self) {
-        self.population.retain_mut(|o| match o.status {
-            Status::ALIVE => true,
-            Status::DEAD => false,
-        });
+        self.population.retain_mut(|o| o.status == Status::ALIVE);
     }
 
     pub fn flip_organism_at(&mut self, point: Point) {
