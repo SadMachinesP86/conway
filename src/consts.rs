@@ -1,4 +1,4 @@
-pub const SIZE: i16 = 16;
+pub const SCALE: i16 = 8;
 pub const FONT_SIZE: i16 = 14;
 pub const SPEED: f64 = 0.1;
 

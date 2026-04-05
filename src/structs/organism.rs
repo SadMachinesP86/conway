@@ -16,10 +16,10 @@ pub struct Organism {
 impl Organism {
     pub fn draw(&self) {
         draw_rectangle(
-            (self.location.0 * SIZE) as f32,
-            (self.location.1 * SIZE) as f32,
-            SIZE as f32,
-            SIZE as f32,
+            (self.location.0 * SCALE) as f32,
+            (self.location.1 * SCALE) as f32,
+            SCALE as f32,
+            SCALE as f32,
             SKYBLUE,
         );
     }

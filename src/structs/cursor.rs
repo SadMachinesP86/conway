@@ -12,8 +12,8 @@ impl Cursor {
     }
 
     pub fn draw(&self) {
-        let mut x_offset = SIZE / 4;
-        let mut y_offset = SIZE / 4;
+        let mut x_offset = SCALE / 4;
+        let mut y_offset = SCALE / 4;
 
         if self.location.0 < 0 {
             x_offset = x_offset * -1
@@ -24,10 +24,10 @@ impl Cursor {
         }
 
         draw_rectangle(
-            ((self.location.0 * SIZE) + x_offset) as f32,
-            ((self.location.1 * SIZE) + y_offset) as f32,
-            (SIZE / 2) as f32,
-            (SIZE / 2) as f32,
+            ((self.location.0 * SCALE) + x_offset) as f32,
+            ((self.location.1 * SCALE) + y_offset) as f32,
+            (SCALE / 2) as f32,
+            (SCALE / 2) as f32,
             GOLD,
         );
     }
