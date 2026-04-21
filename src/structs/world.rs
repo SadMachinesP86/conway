@@ -64,7 +64,7 @@ impl World {
     }
 
     // Creates a new organism at the provided location.
-    pub fn create_organism_at(&mut self, point: Point, status: Status) -> &mut Organism {
+    pub fn create_organism_at(&mut self, point: Point, status: Status) {
         self.population.insert(
             point,
             Organism {
@@ -72,8 +72,6 @@ impl World {
                 status,
             },
         );
-
-        self.get_organism_at(point).unwrap()
     }
 
     pub fn advance_generation(&mut self) {
