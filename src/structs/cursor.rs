@@ -47,4 +47,9 @@ impl Cursor {
     pub fn down(&mut self, scale: i16) {
         self.location.1 += scale
     }
+
+    pub fn move_to(&mut self, mouse_position: (f32, f32)) {
+        self.location.0 = (mouse_position.0 as i16) / SCALE;
+        self.location.1 = (mouse_position.1 as i16) / SCALE;
+    }
 }

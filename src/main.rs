@@ -27,6 +27,16 @@ async fn pregame_loop(world: &mut World) -> bool {
         };
 
         let mut did_move = false;
+        let mut moved_by_mouse = false;
+
+        if is_mouse_button_pressed(MouseButton::Left) {
+            cursor.move_to(mouse_position());
+            moved_by_mouse = true;
+        } else if is_mouse_button_down(MouseButton::Left) {
+            let prev_location = cursor.location.clone();
+            cursor.move_to(mouse_position());
+            moved_by_mouse = cursor.location != prev_location;
+        }
 
         if is_key_pressed(KeyCode::Enter) {
             break;
@@ -53,7 +63,7 @@ async fn pregame_loop(world: &mut World) -> bool {
             world.clear_population();
         }
 
-        if did_move && is_key_down(KeyCode::Space) {
+        if (did_move && is_key_down(KeyCode::Space)) || moved_by_mouse {
             world.flip_organism_at(cursor.location);
         }
 
