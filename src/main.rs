@@ -6,6 +6,7 @@ use crate::consts::SPEED;
 use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;
+use crate::structs::organism::Status;
 use crate::structs::world::World;
 use macroquad::prelude::*;
 
@@ -13,6 +14,7 @@ async fn pregame_loop(world: &mut World) -> bool {
     let mut cursor = Cursor::default();
     let mut instructions = Instructions::default();
     let mut resume = true;
+    let mut locked_status_for_mouse_move = Status::DEAD;
 
     loop {
         world.draw();
@@ -32,6 +34,11 @@ async fn pregame_loop(world: &mut World) -> bool {
         if is_mouse_button_pressed(MouseButton::Left) {
             cursor.move_to(mouse_position());
             moved_by_mouse = true;
+
+            locked_status_for_mouse_move = match world.get_organism_at_mouse_position() {
+                Some(o) => !o.status,
+                None => Status::ALIVE,
+            }
         } else if is_mouse_button_down(MouseButton::Left) {
             let prev_location = cursor.location.clone();
             cursor.move_to(mouse_position());
@@ -63,8 +70,10 @@ async fn pregame_loop(world: &mut World) -> bool {
             world.clear_population();
         }
 
-        if (did_move && is_key_down(KeyCode::Space)) || moved_by_mouse {
+        if did_move && is_key_down(KeyCode::Space) {
             world.flip_organism_at(cursor.location);
+        } else if moved_by_mouse {
+            world.set_organism_at(cursor.location, locked_status_for_mouse_move);
         }
 
         next_frame().await;

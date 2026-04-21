@@ -1,10 +1,21 @@
 use crate::consts::*;
 use crate::{SKYBLUE, draw_rectangle};
+use std::ops::Not;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Copy)]
 pub enum Status {
     ALIVE,
     DEAD,
+}
+
+impl Not for Status {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        match self {
+            Status::ALIVE => Status::DEAD,
+            Status::DEAD => Status::ALIVE,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -70,9 +81,10 @@ impl Organism {
     }
 
     pub fn flip_status(&mut self) {
-        self.status = match self.status {
-            Status::ALIVE => Status::DEAD,
-            Status::DEAD => Status::ALIVE,
-        };
+        self.status = !self.status;
+    }
+
+    pub fn set_status(&mut self, status: Status) {
+        self.status = status;
     }
 }

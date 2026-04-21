@@ -1,6 +1,6 @@
 use super::organism::{Organism, Status};
 use crate::consts::*;
-use crate::{BLACK, clear_background};
+use crate::{BLACK, clear_background, mouse_position};
 
 pub struct World {
     population: Vec<Organism>,
@@ -56,6 +56,18 @@ impl World {
         self.population.iter_mut().find(|o| o.location == point)
     }
 
+    pub fn get_organism_at_mouse_position(&mut self) -> Option<&mut Organism> {
+        let mouse_position = mouse_position();
+
+        self.population.iter_mut().find(|o| {
+            o.location
+                == (
+                    (mouse_position.0 as i16) / SCALE,
+                    (mouse_position.1 as i16) / SCALE,
+                )
+        })
+    }
+
     // Creates a new organism at the provided location.
     pub fn create_organism_at(&mut self, point: Point, status: Status) -> &mut Organism {
         self.population.push(Organism {
@@ -94,6 +106,11 @@ impl World {
 
     pub fn flip_organism_at(&mut self, point: Point) {
         self.organism_at(point).flip_status();
+        self.clear_dead();
+    }
+
+    pub fn set_organism_at(&mut self, point: Point, status: Status) {
+        self.organism_at(point).set_status(status);
         self.clear_dead();
     }
 
