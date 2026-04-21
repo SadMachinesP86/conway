@@ -45,10 +45,7 @@ impl World {
             self.create_organism_at(point, Status::DEAD);
         }
 
-        self.population
-            .iter_mut()
-            .find(|o| o.location == point)
-            .unwrap()
+        self.get_organism_at(point).unwrap()
     }
 
     // Looks up the organism at the provided location.
