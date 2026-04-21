@@ -74,12 +74,6 @@ impl Organism {
         ]
     }
 
-    pub fn is_neighbor_of(&self, other: &Organism) -> bool {
-        ((self.location.0 - other.location.0).abs() <= 1
-            && (self.location.1 - other.location.1).abs() <= 1)
-            && !(self.location.0 == other.location.0 && self.location.1 == other.location.1)
-    }
-
     pub fn flip_status(&mut self) {
         self.status = !self.status;
     }

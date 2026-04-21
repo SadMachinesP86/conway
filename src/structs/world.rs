@@ -1,22 +1,23 @@
 use super::organism::{Organism, Status};
 use crate::consts::*;
 use crate::{BLACK, clear_background, mouse_position};
+use std::collections::HashMap;
 
 pub struct World {
-    population: Vec<Organism>,
+    population: HashMap<Point, Organism>,
 }
 
 impl World {
     pub fn default() -> World {
         let mut world = World {
-            population: Vec::new(),
+            population: HashMap::new(),
         };
 
         world.prepare_sample();
         world
     }
 
-    pub fn with_initial_population(initial_population: Vec<Organism>) -> World {
+    pub fn with_initial_population(initial_population: HashMap<Point, Organism>) -> World {
         World {
             population: initial_population,
         }
@@ -26,15 +27,15 @@ impl World {
         clear_background(BLACK);
 
         for organism in self.get_population() {
-            organism.draw();
+            organism.1.draw();
         }
     }
 
-    pub fn get_population(&self) -> &Vec<Organism> {
+    pub fn get_population(&self) -> &HashMap<Point, Organism> {
         &self.population
     }
 
-    pub fn clone_population(&self) -> Vec<Organism> {
+    pub fn clone_population(&self) -> HashMap<Point, Organism> {
         self.population.clone()
     }
 
@@ -50,28 +51,28 @@ impl World {
 
     // Looks up the organism at the provided location.
     pub fn get_organism_at(&mut self, point: Point) -> Option<&mut Organism> {
-        self.population.iter_mut().find(|o| o.location == point)
+        self.population.get_mut(&point)
     }
 
     pub fn get_organism_at_mouse_position(&mut self) -> Option<&mut Organism> {
         let mouse_position = mouse_position();
 
-        self.population.iter_mut().find(|o| {
-            o.location
-                == (
-                    (mouse_position.0 as i16) / SCALE,
-                    (mouse_position.1 as i16) / SCALE,
-                )
-        })
+        self.get_organism_at((
+            (mouse_position.0 as i16) / SCALE,
+            (mouse_position.1 as i16) / SCALE,
+        ))
     }
 
     // Creates a new organism at the provided location.
     pub fn create_organism_at(&mut self, point: Point, status: Status) -> &mut Organism {
-        self.population.push(Organism {
-            location: (point),
-            status,
-        });
-        self.population.last_mut().unwrap()
+        self.population.insert(
+            point,
+            Organism {
+                location: point,
+                status,
+            },
+        );
+        self.population.get_mut(&point).unwrap()
     }
 
     pub fn advance_generation(&mut self) {
@@ -79,26 +80,37 @@ impl World {
 
         // Infill dead organisms at neighboring points for all current organisms.
         for previous_organism in previous_population.iter() {
-            for point in previous_organism.neighboring_points() {
-                let _ = self.organism_at(point);
+            for point in previous_organism.1.neighboring_points() {
+                self.organism_at(point);
             }
         }
 
         // Count each organism's live neighbors, and update their status accordingly.
         for organism in self.population.iter_mut() {
-            let live_neighbors = previous_population
+            let live_neighbors: usize = organism
+                .1
+                .neighboring_points()
                 .iter()
-                .filter(|o| o.status == Status::ALIVE && o.is_neighbor_of(organism))
-                .count();
+                .map(|o| match previous_population.get(o) {
+                    Some(o) => {
+                        if o.status == Status::ALIVE {
+                            1
+                        } else {
+                            0
+                        }
+                    }
+                    None => 0,
+                })
+                .sum();
 
-            organism.set_status_for_neighbor_count(live_neighbors);
+            organism.1.set_status_for_neighbor_count(live_neighbors);
         }
 
         self.clear_dead();
     }
 
     pub fn clear_dead(&mut self) {
-        self.population.retain_mut(|o| o.status == Status::ALIVE);
+        self.population.retain(|_p, o| o.status == Status::ALIVE);
     }
 
     pub fn flip_organism_at(&mut self, point: Point) {
@@ -120,6 +132,6 @@ impl World {
     }
 
     pub fn clear_population(&mut self) {
-        self.population = Vec::new();
+        self.population = HashMap::new();
     }
 }
