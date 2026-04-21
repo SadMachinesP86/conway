@@ -72,7 +72,8 @@ impl World {
                 status,
             },
         );
-        self.population.get_mut(&point).unwrap()
+
+        self.get_organism_at(point).unwrap()
     }
 
     pub fn advance_generation(&mut self) {
