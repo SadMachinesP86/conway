@@ -1,6 +1,7 @@
 use super::organism::{Organism, Status};
 use crate::consts::*;
-use crate::{BLACK, clear_background, mouse_position};
+use crate::structs::point::Point;
+use crate::{BLACK, SKYBLUE, clear_background, draw_rectangle, mouse_position};
 use std::collections::HashMap;
 
 pub struct World {
@@ -27,7 +28,13 @@ impl World {
         clear_background(BLACK);
 
         for organism in self.get_population() {
-            organism.1.draw();
+            draw_rectangle(
+                (organism.0.0 * SCALE) as f32,
+                (organism.0.1 * SCALE) as f32,
+                SCALE as f32,
+                SCALE as f32,
+                SKYBLUE,
+            );
         }
     }
 
@@ -57,7 +64,7 @@ impl World {
     pub fn get_organism_at_mouse_position(&mut self) -> Option<&mut Organism> {
         let mouse_position = mouse_position();
 
-        self.get_organism_at((
+        self.get_organism_at(Point(
             (mouse_position.0 as i16) / SCALE,
             (mouse_position.1 as i16) / SCALE,
         ))
@@ -65,7 +72,7 @@ impl World {
 
     // Creates a new organism at the provided location.
     pub fn create_organism_at(&mut self, point: Point, status: Status) {
-        self.population.insert(point, Organism::new(point, status));
+        self.population.insert(point, Organism::new(status));
     }
 
     pub fn advance_generation(&mut self) {
@@ -73,7 +80,7 @@ impl World {
 
         // Infill dead organisms at neighboring points for all current organisms.
         for previous_organism in previous_population.iter() {
-            for point in previous_organism.1.neighboring_points() {
+            for point in previous_organism.0.neighboring_points() {
                 self.organism_at(point);
             }
         }
@@ -81,7 +88,7 @@ impl World {
         // Count each organism's live neighbors, and update their status accordingly.
         for organism in self.population.iter_mut() {
             let live_neighbors: usize = organism
-                .1
+                .0
                 .neighboring_points()
                 .iter()
                 .map(|o| match previous_population.get(o) {
@@ -118,11 +125,11 @@ impl World {
     }
 
     pub fn prepare_sample(&mut self) {
-        self.create_organism_at((3, 2), Status::ALIVE);
-        self.create_organism_at((4, 3), Status::ALIVE);
-        self.create_organism_at((2, 4), Status::ALIVE);
-        self.create_organism_at((3, 4), Status::ALIVE);
-        self.create_organism_at((4, 4), Status::ALIVE);
+        self.create_organism_at(Point(3, 2), Status::ALIVE);
+        self.create_organism_at(Point(4, 3), Status::ALIVE);
+        self.create_organism_at(Point(2, 4), Status::ALIVE);
+        self.create_organism_at(Point(3, 4), Status::ALIVE);
+        self.create_organism_at(Point(4, 4), Status::ALIVE);
     }
 
     pub fn clear_population(&mut self) {

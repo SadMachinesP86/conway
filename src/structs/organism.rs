@@ -1,5 +1,3 @@
-use crate::consts::*;
-use crate::{SKYBLUE, draw_rectangle};
 use std::ops::Not;
 
 #[derive(Clone, PartialEq, Copy)]
@@ -20,23 +18,12 @@ impl Not for Status {
 
 #[derive(Clone)]
 pub struct Organism {
-    location: Point,
     status: Status,
 }
 
 impl Organism {
-    pub fn new(location: Point, status: Status) -> Organism {
-        Organism { location, status }
-    }
-
-    pub fn draw(&self) {
-        draw_rectangle(
-            (self.location.0 * SCALE) as f32,
-            (self.location.1 * SCALE) as f32,
-            SCALE as f32,
-            SCALE as f32,
-            SKYBLUE,
-        );
+    pub fn new(status: Status) -> Organism {
+        Organism { status }
     }
 
     /// Implements the core game logic: determines the status of the organism for the next generation, based on its
@@ -63,19 +50,6 @@ impl Organism {
                 }
             }
         };
-    }
-
-    pub fn neighboring_points(&self) -> Vec<Point> {
-        vec![
-            (self.location.0 - 1, self.location.1 - 1),
-            (self.location.0 - 1, self.location.1),
-            (self.location.0 - 1, self.location.1 + 1),
-            (self.location.0, self.location.1 - 1),
-            (self.location.0, self.location.1 + 1),
-            (self.location.0 + 1, self.location.1 - 1),
-            (self.location.0 + 1, self.location.1),
-            (self.location.0 + 1, self.location.1 + 1),
-        ]
     }
 
     pub fn flip_status(&mut self) {

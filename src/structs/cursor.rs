@@ -1,5 +1,6 @@
 use crate::consts::*;
 use crate::screen::origin;
+use crate::structs::point::Point;
 use crate::{GOLD, draw_rectangle};
 
 pub struct Cursor {
