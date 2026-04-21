@@ -36,7 +36,7 @@ async fn pregame_loop(world: &mut World) -> bool {
             moved_by_mouse = true;
 
             locked_status_for_mouse_move = match world.get_organism_at_mouse_position() {
-                Some(o) => !o.status,
+                Some(o) => !o.get_status(),
                 None => Status::ALIVE,
             }
         } else if is_mouse_button_down(MouseButton::Left) {

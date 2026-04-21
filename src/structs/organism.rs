@@ -20,11 +20,15 @@ impl Not for Status {
 
 #[derive(Clone)]
 pub struct Organism {
-    pub location: Point,
-    pub status: Status,
+    location: Point,
+    status: Status,
 }
 
 impl Organism {
+    pub fn new(location: Point, status: Status) -> Organism {
+        Organism { location, status }
+    }
+
     pub fn draw(&self) {
         draw_rectangle(
             (self.location.0 * SCALE) as f32,
@@ -76,6 +80,10 @@ impl Organism {
 
     pub fn flip_status(&mut self) {
         self.status = !self.status;
+    }
+
+    pub fn get_status(&self) -> Status {
+        self.status
     }
 
     pub fn set_status(&mut self, status: Status) {

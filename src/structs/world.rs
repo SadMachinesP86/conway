@@ -65,13 +65,7 @@ impl World {
 
     // Creates a new organism at the provided location.
     pub fn create_organism_at(&mut self, point: Point, status: Status) {
-        self.population.insert(
-            point,
-            Organism {
-                location: point,
-                status,
-            },
-        );
+        self.population.insert(point, Organism::new(point, status));
     }
 
     pub fn advance_generation(&mut self) {
@@ -92,7 +86,7 @@ impl World {
                 .iter()
                 .map(|o| match previous_population.get(o) {
                     Some(o) => {
-                        if o.status == Status::ALIVE {
+                        if o.get_status() == Status::ALIVE {
                             1
                         } else {
                             0
@@ -109,7 +103,8 @@ impl World {
     }
 
     pub fn clear_dead(&mut self) {
-        self.population.retain(|_p, o| o.status == Status::ALIVE);
+        self.population
+            .retain(|_p, o| o.get_status() == Status::ALIVE);
     }
 
     pub fn flip_organism_at(&mut self, point: Point) {
