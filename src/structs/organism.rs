@@ -1,5 +1,5 @@
-use macroquad::color::{Color, SKYBLUE};
-use std::ops::Not;
+use crate::{Color, Team};
+use std::{collections::HashMap, ops::Not};
 
 #[derive(Clone, PartialEq, Copy)]
 pub enum Status {
@@ -20,18 +20,18 @@ impl Not for Status {
 #[derive(Clone)]
 pub struct Organism {
     status: Status,
-    color: Color,
+    team: Team,
 }
 
 impl Organism {
-    pub fn new(status: Status, color: Color) -> Organism {
-        Organism { status, color }
+    pub fn new(status: Status, team: Team) -> Organism {
+        Organism { status, team }
     }
 
     pub fn default() -> Organism {
         Organism {
             status: Status::DEAD,
-            color: SKYBLUE,
+            team: Team::BLUE,
         }
     }
 
@@ -42,20 +42,46 @@ impl Organism {
     /// * Any live cell with two or three live neighbours lives on to the next generation.
     /// * Any live cell with more than three live neighbours dies, as if by overpopulation.
     /// * Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-    pub fn set_status_for_neighbor_count(&mut self, neighbor_count: usize) {
-        self.status = match self.status {
+    pub fn set_status_for_neighbor_count(&mut self, neighbor_counts: HashMap<Team, usize>) {
+        let sum: usize = neighbor_counts.values().sum();
+
+        let max: usize;
+        let highest_team: Team;
+
+        if sum > 0 {
+            max = *neighbor_counts.values().max().unwrap();
+            highest_team = **neighbor_counts
+                .keys()
+                .filter_map(|k| match neighbor_counts.get(k) {
+                    Some(i) => {
+                        if *i == max {
+                            Some(k)
+                        } else {
+                            None
+                        }
+                    }
+                    None => None,
+                })
+                .collect::<Vec<&Team>>()
+                .get(0)
+                .unwrap();
+        } else {
+            highest_team = self.team;
+        }
+
+        match self.status {
             Status::ALIVE => {
-                if neighbor_count < 2 || neighbor_count > 3 {
-                    Status::DEAD
+                if sum < 2 || sum > 3 {
+                    self.status = Status::DEAD;
                 } else {
-                    Status::ALIVE
+                    self.status = Status::ALIVE;
+                    self.team = highest_team;
                 }
             }
             Status::DEAD => {
-                if neighbor_count == 3 {
-                    Status::ALIVE
-                } else {
-                    Status::DEAD
+                if sum == 3 {
+                    self.status = Status::ALIVE;
+                    self.team = highest_team;
                 }
             }
         };
@@ -69,11 +95,15 @@ impl Organism {
         self.status = status;
     }
 
-    pub fn get_color(&self) -> Color {
-        self.color
+    pub fn get_team(&self) -> Team {
+        self.team
     }
 
-    pub fn set_color(&mut self, color: Color) {
-        self.color = color;
+    pub fn set_team(&mut self, team: Team) {
+        self.team = team;
+    }
+
+    pub fn get_color(&self) -> Color {
+        Team::team_color(self.team)
     }
 }

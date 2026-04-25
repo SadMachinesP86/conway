@@ -1,9 +1,7 @@
-use macroquad::color::SKYBLUE;
-
 use super::organism::{Organism, Status};
 use crate::consts::*;
 use crate::structs::point::Point;
-use crate::{BLACK, Color, clear_background, draw_rectangle, mouse_position};
+use crate::{BLACK, clear_background, draw_rectangle, mouse_position};
 use std::collections::HashMap;
 
 pub struct World {
@@ -50,10 +48,10 @@ impl World {
 
     // Returns the organism at the provided location, either by retrieving it from the existing population, or creating
     //   a new (default) one.
-    pub fn organism_at(&mut self, point: Point, color: Option<Color>) -> &mut Organism {
+    pub fn organism_at(&mut self, point: Point, team: Option<Team>) -> &mut Organism {
         if self.get_organism_at(point).is_none() {
-            match color {
-                Some(color) => self.create_organism_at(point, Status::DEAD, color),
+            match team {
+                Some(team) => self.create_organism_at(point, Status::DEAD, team),
                 None => self.create_default_organism_at(point),
             }
         }
@@ -76,8 +74,8 @@ impl World {
     }
 
     // Creates a new organism at the provided location.
-    pub fn create_organism_at(&mut self, point: Point, status: Status, color: Color) {
-        self.population.insert(point, Organism::new(status, color));
+    pub fn create_organism_at(&mut self, point: Point, status: Status, team: Team) {
+        self.population.insert(point, Organism::new(status, team));
     }
 
     // Creates a new default organism at the provided location.
@@ -97,23 +95,35 @@ impl World {
 
         // Count each organism's live neighbors, and update their status accordingly.
         for organism in self.population.iter_mut() {
-            let live_neighbors: usize = organism
+            let live_neighbors: Vec<&Organism> = organism
                 .0
                 .neighboring_points()
                 .iter()
-                .map(|o| match previous_population.get(o) {
+                .filter_map(|o| match previous_population.get(o) {
                     Some(o) => {
                         if o.get_status() == Status::ALIVE {
-                            1
+                            Some(o)
                         } else {
-                            0
+                            None
                         }
                     }
-                    None => 0,
+                    None => None,
                 })
-                .sum();
+                .collect();
 
-            organism.1.set_status_for_neighbor_count(live_neighbors);
+            let mut neighbor_counts: HashMap<Team, usize> = HashMap::new();
+
+            for organism in live_neighbors {
+                neighbor_counts.insert(
+                    organism.get_team(),
+                    match neighbor_counts.get(&organism.get_team()) {
+                        Some(x) => x + 1,
+                        None => 1,
+                    },
+                );
+            }
+
+            organism.1.set_status_for_neighbor_count(neighbor_counts);
         }
 
         self.clear_dead();
@@ -124,19 +134,19 @@ impl World {
             .retain(|_p, o| o.get_status() == Status::ALIVE);
     }
 
-    pub fn set_organism_at(&mut self, point: Point, status: Status, color: Color) {
-        let organism = self.organism_at(point, Some(color));
+    pub fn set_organism_at(&mut self, point: Point, status: Status, team: Team) {
+        let organism = self.organism_at(point, Some(team));
         organism.set_status(status);
-        organism.set_color(color);
+        organism.set_team(team);
         self.clear_dead();
     }
 
     pub fn prepare_sample(&mut self) {
-        self.create_organism_at(Point(3, 2), Status::ALIVE, SKYBLUE);
-        self.create_organism_at(Point(4, 3), Status::ALIVE, SKYBLUE);
-        self.create_organism_at(Point(2, 4), Status::ALIVE, SKYBLUE);
-        self.create_organism_at(Point(3, 4), Status::ALIVE, SKYBLUE);
-        self.create_organism_at(Point(4, 4), Status::ALIVE, SKYBLUE);
+        self.create_organism_at(Point(3, 2), Status::ALIVE, Team::BLUE);
+        self.create_organism_at(Point(4, 3), Status::ALIVE, Team::BLUE);
+        self.create_organism_at(Point(2, 4), Status::ALIVE, Team::BLUE);
+        self.create_organism_at(Point(3, 4), Status::ALIVE, Team::BLUE);
+        self.create_organism_at(Point(4, 4), Status::ALIVE, Team::BLUE);
     }
 
     pub fn clear_population(&mut self) {

@@ -2,7 +2,7 @@ mod consts;
 mod screen;
 mod structs;
 
-use crate::consts::SPEED;
+use crate::consts::{SPEED, Team};
 use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;
@@ -15,10 +15,10 @@ async fn pregame_loop(world: &mut World) -> bool {
     let mut instructions = Instructions::default();
     let mut resume = true;
     let mut locked_status_for_mouse_move = Status::DEAD;
-    let color = SKYBLUE;
 
     loop {
         world.draw();
+        cursor.draw();
         instructions.draw();
 
         let mut toggled = false;
@@ -46,10 +46,18 @@ async fn pregame_loop(world: &mut World) -> bool {
             instructions.toggle_visibility();
         } else if is_key_pressed(KeyCode::C) {
             world.clear_population();
+        } else if is_key_pressed(KeyCode::Key1) {
+            cursor.set_team(Team::BLUE);
+        } else if is_key_pressed(KeyCode::Key2) {
+            cursor.set_team(Team::RED);
+        } else if is_key_pressed(KeyCode::Key3) {
+            cursor.set_team(Team::GOLD);
+        } else if is_key_pressed(KeyCode::Key4) {
+            cursor.set_team(Team::GREEN);
         }
 
         if toggled {
-            world.set_organism_at(cursor.location, locked_status_for_mouse_move, color);
+            world.set_organism_at(cursor.location, locked_status_for_mouse_move, cursor.team);
         }
 
         next_frame().await;
