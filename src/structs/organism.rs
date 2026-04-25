@@ -52,10 +52,6 @@ impl Organism {
         };
     }
 
-    pub fn flip_status(&mut self) {
-        self.status = !self.status;
-    }
-
     pub fn get_status(&self) -> Status {
         self.status
     }

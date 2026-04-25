@@ -18,22 +18,13 @@ async fn pregame_loop(world: &mut World) -> bool {
 
     loop {
         world.draw();
-        cursor.draw();
         instructions.draw();
 
-        let movement_scale = if is_key_down(KeyCode::LeftShift) || is_key_down(KeyCode::RightShift)
-        {
-            5
-        } else {
-            1
-        };
-
-        let mut did_move = false;
-        let mut moved_by_mouse = false;
+        let mut toggled = false;
 
         if is_mouse_button_pressed(MouseButton::Left) {
             cursor.move_to(mouse_position());
-            moved_by_mouse = true;
+            toggled = true;
 
             locked_status_for_mouse_move = match world.get_organism_at_mouse_position() {
                 Some(o) => !o.get_status(),
@@ -42,7 +33,7 @@ async fn pregame_loop(world: &mut World) -> bool {
         } else if is_mouse_button_down(MouseButton::Left) {
             let prev_location = cursor.location.clone();
             cursor.move_to(mouse_position());
-            moved_by_mouse = cursor.location != prev_location;
+            toggled = cursor.location != prev_location;
         }
 
         if is_key_pressed(KeyCode::Enter) {
@@ -50,29 +41,13 @@ async fn pregame_loop(world: &mut World) -> bool {
         } else if is_key_pressed(KeyCode::Escape) {
             resume = false;
             break;
-        } else if is_key_pressed(KeyCode::Space) {
-            world.flip_organism_at(cursor.location);
-        } else if is_key_pressed(KeyCode::Up) {
-            cursor.up(movement_scale);
-            did_move = true;
-        } else if is_key_pressed(KeyCode::Down) {
-            cursor.down(movement_scale);
-            did_move = true;
-        } else if is_key_pressed(KeyCode::Left) {
-            cursor.left(movement_scale);
-            did_move = true;
-        } else if is_key_pressed(KeyCode::Right) {
-            cursor.right(movement_scale);
-            did_move = true;
         } else if is_key_pressed(KeyCode::H) {
             instructions.toggle_visibility();
         } else if is_key_pressed(KeyCode::C) {
             world.clear_population();
         }
 
-        if did_move && is_key_down(KeyCode::Space) {
-            world.flip_organism_at(cursor.location);
-        } else if moved_by_mouse {
+        if toggled {
             world.set_organism_at(cursor.location, locked_status_for_mouse_move);
         }
 

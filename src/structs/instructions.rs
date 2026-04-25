@@ -11,11 +11,14 @@ impl Instructions {
     pub fn default() -> Instructions {
         Instructions {
             instructions: vec![
-                "Instructions: Set the starting population, then run the simulation.".to_owned(),
-                "Use arrow keys to move the cursor. Press [Space] to flip the cell at the cursor."
-                    .to_owned(),
-                "Press [H] to toggle instructions.".to_owned(),
-                "Press [Enter] to run the game. Press [Escape] to quit.".to_owned(),
+                "Instructions: Click to add/remove 'cells' in order to set the starting population.".to_owned(),
+                "[H] - Toggle the visibility of these instructions.".to_owned(),
+                "[C] - Clear the population.".to_owned(),
+                "[Enter] - Run the simulation.".to_owned(),
+                "[Escape] - Quit.".to_owned(),
+                "During the simulation:".to_owned(),
+                "[Space] - Pause the simulation.".to_owned(),
+                "[Escape] - End the simulation and return to the start.".to_owned(),
             ],
             font_size: FONT_SIZE as f32,
             visibility: true,

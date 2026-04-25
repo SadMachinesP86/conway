@@ -114,11 +114,6 @@ impl World {
             .retain(|_p, o| o.get_status() == Status::ALIVE);
     }
 
-    pub fn flip_organism_at(&mut self, point: Point) {
-        self.organism_at(point).flip_status();
-        self.clear_dead();
-    }
-
     pub fn set_organism_at(&mut self, point: Point, status: Status) {
         self.organism_at(point).set_status(status);
         self.clear_dead();
