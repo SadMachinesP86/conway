@@ -1,21 +1,6 @@
-use crate::{Color, Team};
-use std::{collections::HashMap, ops::Not};
-
-#[derive(Clone, PartialEq, Copy)]
-pub enum Status {
-    ALIVE,
-    DEAD,
-}
-
-impl Not for Status {
-    type Output = Self;
-    fn not(self) -> Self::Output {
-        match self {
-            Status::ALIVE => Status::DEAD,
-            Status::DEAD => Status::ALIVE,
-        }
-    }
-}
+use crate::Color;
+use crate::enums::{status::Status, team::Team};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 pub struct Organism {
@@ -30,7 +15,7 @@ impl Organism {
 
     pub fn default() -> Organism {
         Organism {
-            status: Status::DEAD,
+            status: Status::default(),
             team: Team::default(),
         }
     }

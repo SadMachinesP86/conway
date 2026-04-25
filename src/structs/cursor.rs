@@ -1,8 +1,8 @@
-use crate::consts::*;
+use crate::consts::SCALE;
+use crate::enums::{status::Status, team::Team};
 use crate::screen::origin;
-use crate::structs::organism::Status;
 use crate::structs::point::Point;
-use crate::{Color, Team, draw_rectangle};
+use crate::{Color, draw_rectangle};
 
 pub struct Cursor {
     location: Point,
@@ -14,7 +14,7 @@ impl Cursor {
     pub fn default() -> Cursor {
         Cursor {
             location: origin(),
-            status: Status::DEAD,
+            status: Status::default(),
             team: Team::default(),
         }
     }

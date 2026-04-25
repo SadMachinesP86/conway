@@ -1,6 +1,6 @@
-use super::organism::{Organism, Status};
-use crate::consts::*;
-use crate::enums::team::Team;
+use super::organism::Organism;
+use crate::consts::SCALE;
+use crate::enums::{status::Status, team::Team};
 use crate::structs::point::Point;
 use crate::{BLACK, clear_background, draw_rectangle, mouse_position};
 use std::collections::HashMap;
@@ -52,7 +52,7 @@ impl World {
     pub fn organism_at(&mut self, point: Point, team: Option<Team>) -> &mut Organism {
         if self.get_organism_at(point).is_none() {
             match team {
-                Some(team) => self.create_organism_at(point, Status::DEAD, team),
+                Some(team) => self.create_organism_at(point, Status::default(), team),
                 None => self.create_default_organism_at(point),
             }
         }

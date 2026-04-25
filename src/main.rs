@@ -4,11 +4,10 @@ mod screen;
 mod structs;
 
 use crate::consts::SPEED;
-use crate::enums::team::Team;
+use crate::enums::{status::Status, team::Team};
 use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;
-use crate::structs::organism::Status;
 use crate::structs::world::World;
 use macroquad::prelude::*;
 
