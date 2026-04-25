@@ -14,7 +14,6 @@ async fn pregame_loop(world: &mut World) -> bool {
     let mut cursor = Cursor::default();
     let mut instructions = Instructions::default();
     let mut resume = true;
-    let mut locked_status_for_mouse_move = Status::DEAD;
 
     loop {
         world.draw();
@@ -27,14 +26,14 @@ async fn pregame_loop(world: &mut World) -> bool {
             cursor.move_to(mouse_position());
             toggled = true;
 
-            locked_status_for_mouse_move = match world.get_organism_at_mouse_position() {
+            cursor.set_status(match world.get_organism_at_mouse_position() {
                 Some(o) => !o.get_status(),
                 None => Status::ALIVE,
-            }
+            });
         } else if is_mouse_button_down(MouseButton::Left) {
-            let prev_location = cursor.location.clone();
+            let prev_location = cursor.get_location();
             cursor.move_to(mouse_position());
-            toggled = cursor.location != prev_location;
+            toggled = cursor.get_location() != prev_location;
         }
 
         if is_key_pressed(KeyCode::Enter) {
@@ -57,7 +56,11 @@ async fn pregame_loop(world: &mut World) -> bool {
         }
 
         if toggled {
-            world.set_organism_at(cursor.location, locked_status_for_mouse_move, cursor.team);
+            world.set_organism_at(
+                cursor.get_location(),
+                cursor.get_status(),
+                cursor.get_team(),
+            );
         }
 
         next_frame().await;

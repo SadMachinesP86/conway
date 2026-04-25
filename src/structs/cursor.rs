@@ -1,17 +1,20 @@
 use crate::consts::*;
 use crate::screen::origin;
+use crate::structs::organism::Status;
 use crate::structs::point::Point;
 use crate::{Color, Team, draw_rectangle};
 
 pub struct Cursor {
-    pub location: Point,
-    pub team: Team,
+    location: Point,
+    status: Status,
+    team: Team,
 }
 
 impl Cursor {
     pub fn default() -> Cursor {
         Cursor {
             location: origin(),
+            status: Status::DEAD,
             team: Team::BLUE,
         }
     }
@@ -42,8 +45,24 @@ impl Cursor {
         self.location.1 = (mouse_position.1 as i16) / SCALE;
     }
 
+    pub fn get_location(&self) -> Point {
+        self.location
+    }
+
     pub fn set_team(&mut self, team: Team) {
         self.team = team;
+    }
+
+    pub fn get_team(&self) -> Team {
+        self.team
+    }
+
+    pub fn set_status(&mut self, status: Status) {
+        self.status = status;
+    }
+
+    pub fn get_status(&self) -> Status {
+        self.status
     }
 
     pub fn get_color(&self) -> Color {
