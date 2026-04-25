@@ -15,7 +15,7 @@ impl Cursor {
         Cursor {
             location: origin(),
             status: Status::DEAD,
-            team: Team::BLUE,
+            team: Team::default(),
         }
     }
 

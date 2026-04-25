@@ -1,8 +1,10 @@
 mod consts;
+mod enums;
 mod screen;
 mod structs;
 
-use crate::consts::{SPEED, Team};
+use crate::consts::SPEED;
+use crate::enums::team::Team;
 use crate::screen::fullscreen;
 use crate::structs::cursor::Cursor;
 use crate::structs::instructions::Instructions;

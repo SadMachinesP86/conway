@@ -31,7 +31,7 @@ impl Organism {
     pub fn default() -> Organism {
         Organism {
             status: Status::DEAD,
-            team: Team::BLUE,
+            team: Team::default(),
         }
     }
 

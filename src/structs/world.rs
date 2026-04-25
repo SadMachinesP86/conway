@@ -1,5 +1,6 @@
 use super::organism::{Organism, Status};
 use crate::consts::*;
+use crate::enums::team::Team;
 use crate::structs::point::Point;
 use crate::{BLACK, clear_background, draw_rectangle, mouse_position};
 use std::collections::HashMap;
@@ -142,11 +143,11 @@ impl World {
     }
 
     pub fn prepare_sample(&mut self) {
-        self.create_organism_at(Point(3, 2), Status::ALIVE, Team::BLUE);
-        self.create_organism_at(Point(4, 3), Status::ALIVE, Team::BLUE);
-        self.create_organism_at(Point(2, 4), Status::ALIVE, Team::BLUE);
-        self.create_organism_at(Point(3, 4), Status::ALIVE, Team::BLUE);
-        self.create_organism_at(Point(4, 4), Status::ALIVE, Team::BLUE);
+        self.create_organism_at(Point(3, 2), Status::ALIVE, Team::default());
+        self.create_organism_at(Point(4, 3), Status::ALIVE, Team::default());
+        self.create_organism_at(Point(2, 4), Status::ALIVE, Team::default());
+        self.create_organism_at(Point(3, 4), Status::ALIVE, Team::default());
+        self.create_organism_at(Point(4, 4), Status::ALIVE, Team::default());
     }
 
     pub fn clear_population(&mut self) {
