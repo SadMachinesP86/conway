@@ -1,7 +1,9 @@
+use macroquad::color::SKYBLUE;
+
 use super::organism::{Organism, Status};
 use crate::consts::*;
 use crate::structs::point::Point;
-use crate::{BLACK, SKYBLUE, clear_background, draw_rectangle, mouse_position};
+use crate::{BLACK, Color, clear_background, draw_rectangle, mouse_position};
 use std::collections::HashMap;
 
 pub struct World {
@@ -33,7 +35,7 @@ impl World {
                 (organism.0.1 * SCALE) as f32,
                 SCALE as f32,
                 SCALE as f32,
-                SKYBLUE,
+                organism.1.get_color(),
             );
         }
     }
@@ -47,10 +49,13 @@ impl World {
     }
 
     // Returns the organism at the provided location, either by retrieving it from the existing population, or creating
-    //   a new (dead) one.
-    pub fn organism_at(&mut self, point: Point) -> &mut Organism {
+    //   a new (default) one.
+    pub fn organism_at(&mut self, point: Point, color: Option<Color>) -> &mut Organism {
         if self.get_organism_at(point).is_none() {
-            self.create_organism_at(point, Status::DEAD);
+            match color {
+                Some(color) => self.create_organism_at(point, Status::DEAD, color),
+                None => self.create_default_organism_at(point),
+            }
         }
 
         self.get_organism_at(point).unwrap()
@@ -71,8 +76,13 @@ impl World {
     }
 
     // Creates a new organism at the provided location.
-    pub fn create_organism_at(&mut self, point: Point, status: Status) {
-        self.population.insert(point, Organism::new(status));
+    pub fn create_organism_at(&mut self, point: Point, status: Status, color: Color) {
+        self.population.insert(point, Organism::new(status, color));
+    }
+
+    // Creates a new default organism at the provided location.
+    pub fn create_default_organism_at(&mut self, point: Point) {
+        self.population.insert(point, Organism::default());
     }
 
     pub fn advance_generation(&mut self) {
@@ -81,7 +91,7 @@ impl World {
         // Infill dead organisms at neighboring points for all current organisms.
         for previous_organism in previous_population.iter() {
             for point in previous_organism.0.neighboring_points() {
-                self.organism_at(point);
+                self.organism_at(point, None);
             }
         }
 
@@ -114,17 +124,19 @@ impl World {
             .retain(|_p, o| o.get_status() == Status::ALIVE);
     }
 
-    pub fn set_organism_at(&mut self, point: Point, status: Status) {
-        self.organism_at(point).set_status(status);
+    pub fn set_organism_at(&mut self, point: Point, status: Status, color: Color) {
+        let organism = self.organism_at(point, Some(color));
+        organism.set_status(status);
+        organism.set_color(color);
         self.clear_dead();
     }
 
     pub fn prepare_sample(&mut self) {
-        self.create_organism_at(Point(3, 2), Status::ALIVE);
-        self.create_organism_at(Point(4, 3), Status::ALIVE);
-        self.create_organism_at(Point(2, 4), Status::ALIVE);
-        self.create_organism_at(Point(3, 4), Status::ALIVE);
-        self.create_organism_at(Point(4, 4), Status::ALIVE);
+        self.create_organism_at(Point(3, 2), Status::ALIVE, SKYBLUE);
+        self.create_organism_at(Point(4, 3), Status::ALIVE, SKYBLUE);
+        self.create_organism_at(Point(2, 4), Status::ALIVE, SKYBLUE);
+        self.create_organism_at(Point(3, 4), Status::ALIVE, SKYBLUE);
+        self.create_organism_at(Point(4, 4), Status::ALIVE, SKYBLUE);
     }
 
     pub fn clear_population(&mut self) {

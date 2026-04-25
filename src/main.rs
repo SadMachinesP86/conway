@@ -15,6 +15,7 @@ async fn pregame_loop(world: &mut World) -> bool {
     let mut instructions = Instructions::default();
     let mut resume = true;
     let mut locked_status_for_mouse_move = Status::DEAD;
+    let color = SKYBLUE;
 
     loop {
         world.draw();
@@ -48,7 +49,7 @@ async fn pregame_loop(world: &mut World) -> bool {
         }
 
         if toggled {
-            world.set_organism_at(cursor.location, locked_status_for_mouse_move);
+            world.set_organism_at(cursor.location, locked_status_for_mouse_move, color);
         }
 
         next_frame().await;

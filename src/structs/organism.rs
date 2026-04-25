@@ -1,3 +1,4 @@
+use macroquad::color::{Color, SKYBLUE};
 use std::ops::Not;
 
 #[derive(Clone, PartialEq, Copy)]
@@ -19,11 +20,19 @@ impl Not for Status {
 #[derive(Clone)]
 pub struct Organism {
     status: Status,
+    color: Color,
 }
 
 impl Organism {
-    pub fn new(status: Status) -> Organism {
-        Organism { status }
+    pub fn new(status: Status, color: Color) -> Organism {
+        Organism { status, color }
+    }
+
+    pub fn default() -> Organism {
+        Organism {
+            status: Status::DEAD,
+            color: SKYBLUE,
+        }
     }
 
     /// Implements the core game logic: determines the status of the organism for the next generation, based on its
@@ -58,5 +67,13 @@ impl Organism {
 
     pub fn set_status(&mut self, status: Status) {
         self.status = status;
+    }
+
+    pub fn get_color(&self) -> Color {
+        self.color
+    }
+
+    pub fn set_color(&mut self, color: Color) {
+        self.color = color;
     }
 }
