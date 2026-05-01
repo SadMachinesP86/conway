@@ -18,6 +18,7 @@ impl Instructions {
                 "[Escape] - Quit.".to_owned(),
                 "During the simulation:".to_owned(),
                 "[Space] - Pause the simulation.".to_owned(),
+                "[Left] / [Right] - Move the simulation back or forward by one generation.".to_owned(),
                 "[Escape] - End the simulation and return to the start.".to_owned(),
             ],
             font_size: FONT_SIZE as f32,

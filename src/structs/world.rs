@@ -84,23 +84,25 @@ impl World {
         self.population.insert(point, Organism::default());
     }
 
-    pub fn advance_generation(&mut self) {
-        let previous_population = self.population.clone();
+    pub fn next_generation(&self) -> World {
+        let mut next = World {
+            population: self.population.clone(),
+        };
 
         // Infill dead organisms at neighboring points for all current organisms.
-        for previous_organism in previous_population.iter() {
+        for previous_organism in self.population.iter() {
             for point in previous_organism.0.neighboring_points() {
-                self.organism_at(point, None);
+                next.organism_at(point, None);
             }
         }
 
         // Count each organism's live neighbors, and update their status accordingly.
-        for organism in self.population.iter_mut() {
+        for organism in next.population.iter_mut() {
             let live_neighbors: Vec<&Organism> = organism
                 .0
                 .neighboring_points()
                 .iter()
-                .filter_map(|o| match previous_population.get(o) {
+                .filter_map(|o| match self.population.get(o) {
                     Some(o) => {
                         if o.get_status() == Status::ALIVE {
                             Some(o)
@@ -127,7 +129,8 @@ impl World {
             organism.1.set_status_for_neighbor_count(neighbor_counts);
         }
 
-        self.clear_dead();
+        next.clear_dead();
+        next
     }
 
     pub fn clear_dead(&mut self) {

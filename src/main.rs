@@ -70,12 +70,21 @@ async fn pregame_loop(world: &mut World) -> bool {
     resume
 }
 
-async fn game_loop(world: &mut World) {
+async fn game_loop(initial_world: World) {
     let mut last_update = get_time();
     let mut paused = false;
+    let mut frame_number: usize = 0;
+    let mut generations = vec![initial_world];
 
     loop {
-        world.draw();
+        match generations.get(frame_number) {
+            Some(x) => x.draw(),
+            None => {
+                let next_generation = generations.last().unwrap().next_generation();
+                next_generation.draw();
+                generations.push(next_generation);
+            }
+        }
 
         if is_key_pressed(KeyCode::Escape) {
             // Wait one more frame to clear keycodes before exiting.
@@ -83,11 +92,15 @@ async fn game_loop(world: &mut World) {
             break;
         } else if is_key_pressed(KeyCode::Space) {
             paused = !paused;
+        } else if is_key_pressed(KeyCode::Left) {
+            frame_number -= 1;
+        } else if is_key_pressed(KeyCode::Right) {
+            frame_number += 1;
         }
 
         if !paused && get_time() - last_update > SPEED {
             last_update = get_time();
-            world.advance_generation();
+            frame_number += 1;
         }
 
         next_frame().await;
@@ -104,7 +117,7 @@ async fn main() {
         let initial_population = world.clone_population();
 
         if resume {
-            game_loop(&mut world).await;
+            game_loop(world).await;
         } else {
             break;
         }
